@@ -96,13 +96,13 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 	public TelaChat() {
 		setTitle("Chat Online");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 582, 425);
+		setBounds(100, 100, 644, 473);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		GridBagLayout gbl_contentPane = new GridBagLayout();
 		gbl_contentPane.columnWidths = new int[] { 399, -63, 0, 0, 0, 0 };
-		gbl_contentPane.rowHeights = new int[] { 191, 35, 63, 0, 0 };
+		gbl_contentPane.rowHeights = new int[] { 164, 35, 145, 0, 0 };
 		gbl_contentPane.columnWeights = new double[] { 1.0, 1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		gbl_contentPane.rowWeights = new double[] { 1.0, 0.0, 1.0, 1.0, Double.MIN_VALUE };
 		contentPane.setLayout(gbl_contentPane);
