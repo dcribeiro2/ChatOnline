@@ -332,7 +332,6 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 						servidorCliente.desconectar(cliente);
 						servidorCliente = null;
 					}
-					JOptionPane.showMessageDialog(null, "Você se desconectou do cliente.");
 					textFieldPortaCliente.setEditable(true);
 				} catch (RemoteException e) {
 					JOptionPane.showMessageDialog(null, "erro ao desconectar do servidor");
@@ -493,8 +492,6 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 			registryCliente = LocateRegistry.getRegistry(host, intPorta);
 			servidorCliente = (IServer) registryCliente.lookup(IServer.NOME_SERVICO);
 
-			JOptionPane.showMessageDialog(this, "Você está conectado no servidor");
-
 			carregarArquivo();
 
 			servidorCliente.registrarCliente(cliente);
@@ -517,18 +514,14 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 	}
 
 	private void carregarArquivo() {
-		File dirStart = new File(".\\");// criar um file que sera o
+//		File dirStart = new File(".\\");// criar um file que sera o
 		// diretorio
-		// File dirStart = new File("C:\\Users\\"+username+"\\Desktop");
-		// File dirStart = new File("C:\\Users\\VICTOR\\Desktop\\Share");
-
+		 File dirStart = new File("C://Users//"+username+"//Desktop//Arquivo");
 		for (File file : dirStart.listFiles()) {// para cada file da lista a
 			// cima ele vai fazer:
 			if (file.isFile()) {// se o file realmente for um file ele vai
 				// executar
-
 				Arquivo arq = new Arquivo();// criar um arquivo
-
 				arq.setNome(file.getName());// colocar nome no arquivo
 				arq.setTamanho(file.length());// colocar o tamanho no
 				// arquivo
@@ -542,7 +535,6 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 				// arquivo
 				arq.setPath(file.getPath());// colocar o path do file no
 				// arquivo
-
 				listaArquivos.add(arq);// adiciona o arquivo com todos os
 				// dados a cima na lista de arquivos
 			}
