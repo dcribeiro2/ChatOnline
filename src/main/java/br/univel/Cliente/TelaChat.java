@@ -6,17 +6,38 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import br.dagostini.comum.Servidor;
+import br.univel.comum.Arquivo;
+import br.univel.comum.Cliente;
+import br.univel.comum.IServer;
+import br.univel.comum.TipoFiltro;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import java.awt.Insets;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
-public class TelaChat extends JFrame {
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+public class TelaChat extends JFrame implements IServer, Runnable{
 
 	private JPanel contentPane;
 	private JTextField textFieldFiltrar;
@@ -24,6 +45,7 @@ public class TelaChat extends JFrame {
 	private JTextField textFieldIPServer;
 	private JTextField textFieldPortaCliente;
 	private JTextField textFieldIPCliente;
+	private JTextArea textAreaChat;
 
 	/**
 	 * Launch the application.
@@ -79,7 +101,7 @@ public class TelaChat extends JFrame {
 		gbc_scrollPaneChat.gridy = 0;
 		panelChat.add(scrollPaneChat, gbc_scrollPaneChat);
 		
-		JTextArea textAreaChat = new JTextArea();
+		textAreaChat = new JTextArea();
 		scrollPaneChat.setViewportView(textAreaChat);
 		
 		JPanel panelUsuarios = new JPanel();
@@ -170,6 +192,7 @@ public class TelaChat extends JFrame {
 		panelMain.add(lblIp, gbc_lblIp);
 		
 		textFieldIPortaServer = new JTextField();
+		textFieldIPortaServer.setText("1818");
 		GridBagConstraints gbc_textFieldIPortaServer = new GridBagConstraints();
 		gbc_textFieldIPortaServer.insets = new Insets(0, 0, 5, 5);
 		gbc_textFieldIPortaServer.fill = GridBagConstraints.HORIZONTAL;
@@ -179,6 +202,11 @@ public class TelaChat extends JFrame {
 		textFieldIPortaServer.setColumns(10);
 		
 		JButton btnAbrirServer = new JButton("Ligar server");
+		btnAbrirServer.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				iniciarServico();
+			}
+		});
 		GridBagConstraints gbc_btnAbrirServer = new GridBagConstraints();
 		gbc_btnAbrirServer.insets = new Insets(0, 0, 5, 0);
 		gbc_btnAbrirServer.fill = GridBagConstraints.BOTH;
@@ -342,4 +370,98 @@ public class TelaChat extends JFrame {
 		panelArquivosBtns.add(btnNewButton, gbc_btnNewButton);
 	}
 
+	/**
+	 * Formatador de data para informações no console. Ver:
+	 * https://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html
+	 */
+	private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy H:mm:ss:SSS");
+
+	/**
+	 * Contatam todos os clientes conectados no servidor.
+	 */
+	private Map<String, Cliente> mapaClientes = new HashMap<>();
+
+	/**
+	 * Referência a esse proprio objeto depois de exportado.
+	 */
+	private IServer servidor;
+
+	/**
+	 * Registro onde o objeto exportado será buscado pelo nome o registro que
+	 * escuta na porta TCP/IP.
+	 */
+	private Registry registry;
+	
+	protected void iniciarServico() {
+		
+		//Copia do prof
+		String strPorta = textFieldIPortaServer.getText().trim();
+
+		if (!strPorta.matches("[0-9]+") || strPorta.length() > 5) {
+			JOptionPane.showMessageDialog(this, "A porta deve ser um valor número de no maximo 5 digitos!");
+			return;
+		}
+		int intPorta = Integer.parseInt(strPorta);
+		if (intPorta < 1024 || intPorta > 65535) {
+			JOptionPane.showMessageDialog(this, "A porta deve estar entre 1024 e 65535");
+			return;
+		}
+		try {
+
+			servidor = (IServer) UnicastRemoteObject.exportObject(this, 0);
+			registry = LocateRegistry.createRegistry(intPorta);
+			registry.rebind(IServer.NOME_SERVICO, servidor);
+
+			mostrar("Serviço iniciado.");
+
+			comboIp.setEnabled(false);
+			txfPorta.setEnabled(false);
+			buttonIniciarServico.setEnabled(false);
+
+			buttonPararServico.setEnabled(true);
+
+		} catch (RemoteException e) {
+			JOptionPane.showMessageDialog(this, "Erro criando registro, verifique se a porta jÃ¡ nÃ£o estÃ¡ sendo usada.");
+			e.printStackTrace();
+		}
+		
+	}
+
+	/**
+	 * Mostra no TextArea o texto recebido devidamente formatado e com data e
+	 * hora.
+	 * 
+	 * @param string
+	 */
+	public void mostrar(String string) {
+		textAreaChat.append(sdf.format(new Date()));
+		textAreaChat.append(" -> ");
+		textAreaChat.append(string);
+		textAreaChat.append("\n");
+	}
+
+	public void run() {
+		
+	}
+
+	public void registrarCliente(Cliente c) throws RemoteException {
+		
+	}
+
+	public void publicarListaArquivos(Cliente c, List<Arquivo> lista) throws RemoteException {
+		
+	}
+
+	public Map<Cliente, List<Arquivo>> procurarArquivo(String query, TipoFiltro tipoFiltro, String filtro)
+			throws RemoteException {
+		return null;
+	}
+
+	public byte[] baixarArquivo(Cliente cli, Arquivo arq) throws RemoteException {
+		return null;
+	}
+
+	public void desconectar(Cliente c) throws RemoteException {
+		
+	}
 }
