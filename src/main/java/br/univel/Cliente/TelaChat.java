@@ -6,6 +6,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.ButtonUI;
 
 import br.dagostini.comum.Servidor;
 import br.univel.comum.Arquivo;
@@ -18,6 +19,7 @@ import java.awt.GridBagConstraints;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import java.awt.Insets;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -46,6 +48,8 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 	private JTextField textFieldPortaCliente;
 	private JTextField textFieldIPCliente;
 	private JTextArea textAreaChat;
+	private JButton btnFexarServer;
+	private JButton btnAbrirServer;
 
 	/**
 	 * Launch the application.
@@ -201,7 +205,7 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 		panelMain.add(textFieldIPortaServer, gbc_textFieldIPortaServer);
 		textFieldIPortaServer.setColumns(10);
 		
-		JButton btnAbrirServer = new JButton("Ligar server");
+		btnAbrirServer = new JButton("Ligar server");
 		btnAbrirServer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				iniciarServico();
@@ -231,7 +235,12 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 		panelMain.add(textFieldIPServer, gbc_textFieldIPServer);
 		textFieldIPServer.setColumns(10);
 		
-		JButton btnFexarServer = new JButton("Fexar server");
+		btnFexarServer = new JButton("Fexar server");
+		btnFexarServer.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				fexarServer();
+			}
+		});
 		GridBagConstraints gbc_btnFexarServer = new GridBagConstraints();
 		gbc_btnFexarServer.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnFexarServer.insets = new Insets(0, 0, 5, 0);
@@ -257,6 +266,11 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 		textFieldPortaCliente.setColumns(10);
 		
 		JButton btnConectarCliente = new JButton("Conectar cliente");
+		btnConectarCliente.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				conectarCliente();
+			}
+		});
 		GridBagConstraints gbc_btnConectarCliente = new GridBagConstraints();
 		gbc_btnConectarCliente.fill = GridBagConstraints.BOTH;
 		gbc_btnConectarCliente.insets = new Insets(0, 0, 5, 0);
@@ -370,6 +384,87 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 		panelArquivosBtns.add(btnNewButton, gbc_btnNewButton);
 	}
 
+	protected void conectarCliente() {
+
+		meunome = txfMeuNome.getText().trim();
+		if (meunome.length() == 0) {
+			JOptionPane.showMessageDialog(this, "Você precisa digitar um nome!");
+			return;
+		}
+
+		// Endereço IP
+		String host = txfIp.getText().trim();
+		if (!host.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}")) {
+			JOptionPane.showMessageDialog(this, "O endereço ip parece inválido!");
+			return;
+		}
+
+		// Porta
+		String strPorta = txfPorta.getText().trim();
+		if (!strPorta.matches("[0-9]+") || strPorta.length() > 5) {
+			JOptionPane.showMessageDialog(this, "A porta deve ser um valor numérico de no máximo 5 dígitos!");
+			return;
+		}
+		int intPorta = Integer.parseInt(strPorta);
+
+		// Iniciando objetos para conexão.
+		try {
+			registry = LocateRegistry.getRegistry(host, intPorta);
+
+			servidor = (Servidor) registry.lookup(Servidor.NOME);
+			cliente = (Cliente) UnicastRemoteObject.exportObject(this, 0);
+
+			// Avisando o servidor que está entrando no Chat.
+			servidor.entrarNoChat(meunome, cliente);
+
+			buttonDesconectar.setEnabled(true);
+
+			buttonConectar.setEnabled(false);
+			txfMeuNome.setEnabled(false);
+			txfIp.setEnabled(false);
+			txfPorta.setEnabled(false);
+
+			buttonConectar.setEnabled(false);
+			buttonEnviar.setEnabled(true);
+			txfMensagem.setEnabled(true);
+
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		} catch (NotBoundException e) {
+			e.printStackTrace();
+		}
+
+	}		
+	}
+
+	protected void fexarServer() {
+		mostrar("SERVIDOR PARANDO O SERVI�O.");
+
+		fecharTodosClientes();
+
+		try {
+			UnicastRemoteObject.unexportObject(this, true);
+			UnicastRemoteObject.unexportObject(registry, true);
+
+			textFieldIPortaServer.setEnabled(true);
+			btnAbrirServer.setEnabled(true);
+
+			btnFexarServer.setEnabled(false);
+
+			mostrar("Servi�o encerrado.");
+
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Desconecta todos os clientes.
+	 */
+	private void fecharTodosClientes() {
+		mostrar("DESCONECTANDO TODOS OS CLIENTES.");
+	}
+	
 	/**
 	 * Formatador de data para informa��es no console. Ver:
 	 * https://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html
@@ -414,11 +509,9 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 
 			mostrar("Servi�o iniciado.");
 
-			comboIp.setEnabled(false);
-			txfPorta.setEnabled(false);
-			buttonIniciarServico.setEnabled(false);
-
-			buttonPararServico.setEnabled(true);
+			textFieldIPortaServer.setEnabled(false);
+			btnAbrirServer.setEnabled(false);
+			btnFexarServer.setEnabled(true);
 
 		} catch (RemoteException e) {
 			JOptionPane.showMessageDialog(this, "Erro criando registro, verifique se a porta já não está sendo usada.");
