@@ -1,6 +1,9 @@
 package br.univel.comum;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Identificação do cliente.
@@ -82,6 +85,9 @@ public class Cliente implements Serializable {
 		if (porta != other.porta)
 			return false;
 		return true;
+	}
+
+	public void receberListaParticipantes(List<String> lista) throws RemoteException {
 	}
 
 }

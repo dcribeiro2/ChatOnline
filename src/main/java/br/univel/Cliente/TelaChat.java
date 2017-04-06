@@ -23,6 +23,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,8 +31,11 @@ import java.util.Map;
 
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
+import javax.swing.ListModel;
+import javax.swing.AbstractListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
@@ -39,6 +43,7 @@ import java.awt.event.ActionEvent;
 
 public class TelaChat extends JFrame implements IServer, Runnable{
 
+	private JList listParticipantes;
 	private JPanel contentPane;
 	private JTextField textFieldFiltrar;
 	private JTextField textFieldIPortaServer;
@@ -46,9 +51,11 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 	private JTextField textFieldPortaCliente;
 	private JTextField textFieldIPCliente;
 	private JTextArea textAreaChat;
+	private JButton btnConectarCliente ;
 	private JButton btnFexarServer;
 	private JButton btnAbrirServer;
-
+	private JButton btnDesconectarCliente;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -225,6 +232,7 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 		panelMain.add(lblIp_1, gbc_lblIp_1);
 		
 		textFieldIPServer = new JTextField();
+		textFieldIPServer.setText("192.168.0.100");
 		GridBagConstraints gbc_textFieldIPServer = new GridBagConstraints();
 		gbc_textFieldIPServer.insets = new Insets(0, 0, 5, 5);
 		gbc_textFieldIPServer.fill = GridBagConstraints.BOTH;
@@ -255,6 +263,7 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 		panelMain.add(lblPortaCliente, gbc_lblPortaCliente);
 		
 		textFieldPortaCliente = new JTextField();
+		textFieldPortaCliente.setText("1818");
 		GridBagConstraints gbc_textFieldPortaCliente = new GridBagConstraints();
 		gbc_textFieldPortaCliente.insets = new Insets(0, 0, 5, 5);
 		gbc_textFieldPortaCliente.fill = GridBagConstraints.HORIZONTAL;
@@ -263,7 +272,7 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 		panelMain.add(textFieldPortaCliente, gbc_textFieldPortaCliente);
 		textFieldPortaCliente.setColumns(10);
 		
-		JButton btnConectarCliente = new JButton("Conectar cliente");
+		btnConectarCliente = new JButton("Conectar cliente");
 		btnConectarCliente.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				conectarCliente();
@@ -285,6 +294,7 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 		panelMain.add(lblIp_2, gbc_lblIp_2);
 		
 		textFieldIPCliente = new JTextField();
+		textFieldIPCliente.setText("192.168.0.100");
 		GridBagConstraints gbc_textFieldIPCliente = new GridBagConstraints();
 		gbc_textFieldIPCliente.insets = new Insets(0, 0, 0, 5);
 		gbc_textFieldIPCliente.fill = GridBagConstraints.BOTH;
@@ -293,7 +303,12 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 		panelMain.add(textFieldIPCliente, gbc_textFieldIPCliente);
 		textFieldIPCliente.setColumns(10);
 		
-		JButton btnDesconectarCliente = new JButton("Desconectar cliente");
+		btnDesconectarCliente = new JButton("Desconectar cliente");
+		btnDesconectarCliente.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				textFieldIPortaServer.setEnabled(true);
+			}
+		});
 		GridBagConstraints gbc_btnDesconectarCliente = new GridBagConstraints();
 		gbc_btnDesconectarCliente.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnDesconectarCliente.gridx = 2;
@@ -422,7 +437,7 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 
 	protected void conectarCliente() {
 
-		// EndereÃ§o IP
+		// Endereço IP
 		String host = textFieldIPCliente.getText().trim();
 		if (!host.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}")) {
 			JOptionPane.showMessageDialog(this, "O endereço ip parece invalido!");
@@ -442,21 +457,22 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 			registry = LocateRegistry.getRegistry(host, intPorta);
 
 			servidor = (IServer) registry.lookup(servidor.NOME_SERVICO);
-			cliente = (Cliente) UnicastRemoteObject.exportObject(this, 0);
+//			cliente = (Cliente) UnicastRemoteObject.exportObject(this, 0);
+			registry = LocateRegistry.getRegistry(host, intPorta);
+			
+			
 
-			// Avisando o servidor que estÃ¡ entrando no Chat.
-			servidor.entrarNoChat(meunome, cliente);
+			// Avisando o servidor que está entrando no Chat.
+//			servidor.entrarNoChat(meunome, cliente);
 
-			buttonDesconectar.setEnabled(true);
+			btnDesconectarCliente.setEnabled(true);
 
-			buttonConectar.setEnabled(false);
-			txfMeuNome.setEnabled(false);
-			txfIp.setEnabled(false);
-			txfPorta.setEnabled(false);
+//			btnConectarCliente.setEnabled(false);
+//			textFieldIPCliente.setEnabled(false);
+//			textFieldPortaCliente.setEnabled(false);
 
-			buttonConectar.setEnabled(false);
-			buttonEnviar.setEnabled(true);
-			txfMensagem.setEnabled(true);
+//			buttonEnviar.setEnabled(true);
+//			txfMensagem.setEnabled(true);
 
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -475,10 +491,11 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 			UnicastRemoteObject.unexportObject(this, true);
 			UnicastRemoteObject.unexportObject(registry, true);
 
-			textFieldIPortaServer.setEnabled(true);
 			btnAbrirServer.setEnabled(true);
 
 			btnFexarServer.setEnabled(false);
+
+			textFieldIPortaServer.setEnabled(true);
 
 			mostrar("Serviço encerrado.");
 
@@ -565,4 +582,51 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 	public void desconectar(Cliente c) throws RemoteException {
 		
 	}
+
+	@Override
+	public void entrarNoChat(String nome, Cliente cliente) throws RemoteException {
+		mostrar(nome + " se conectou.");
+
+		if (mapaClientes.get(nome) != null) {
+
+			mostrar("Retornando erro para tentativa de nome duplicado: " + nome);
+
+			throw new RemoteException("Alguém já¡ está¡ usando o nome: " + nome);
+		}
+
+		mapaClientes.put(nome, cliente);
+
+		mostrar(nome + " se conectou.");
+
+		atualizarListasDeParticipantes();
+	}
+
+	@Override
+	public void receberListaParticipantes(final List<String> lista) throws RemoteException {
+		lista.remove(meunome);
+
+		ListModel<String> model = new AbstractListModel<String>() {
+			@Override
+			public int getSize() {
+				return lista.size();
+			}
+
+			@Override
+			public String getElementAt(int index) {
+				return lista.get(index);
+			}
+		};
+		listParticipantes.setModel(model);
+	}
+	private void atualizarListasDeParticipantes() {
+		mostrar("Enviando lista atualizada de participantes para todos.");
+		try {
+			for (Cliente c : mapaClientes.values()) {
+				c.receberListaParticipantes(new ArrayList<String>(mapaClientes.keySet()));
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+	
 }

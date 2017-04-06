@@ -58,4 +58,26 @@ public interface IServer extends Remote {
 	 */
 	public void desconectar(Cliente c) throws RemoteException;
 
+	
+	public void entrarNoChat(String nome, Cliente cliente) throws RemoteException;
+
+	void receberListaParticipantes(List<String> lista) throws RemoteException;
+
+	/**
+	 * Enviar mensagem para outro participante. Esse envio é intermediado pelo
+	 * servidor, ou seja, o cliente1 envia para o servidor com destino cliente2,
+	 * então o servidor envia para o cliente2.
+	 * 
+	 * @param remetente
+	 *            Nome do remetente.
+	 * 
+	 * @param destinatario
+	 *            Nome do destinatário.
+	 * 
+	 * @param mensagem
+	 *            Texto da mensagem.
+	 * 
+	 * @throws RemoteException
+	 * */
+	
 }
