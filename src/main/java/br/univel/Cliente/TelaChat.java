@@ -45,6 +45,8 @@ import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.awt.event.ActionEvent;
 
 public class TelaChat extends JFrame implements IServer, Runnable {
@@ -70,6 +72,8 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 	private int intPorta;
 	private JTextArea textAreaArquivos; 
 	private Map<Cliente, List<Arquivo>> mapaClientes = new HashMap<>();
+	private String username;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -323,6 +327,17 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 		btnDesconectarCliente.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				textFieldIPortaServer.setEnabled(true);
+				try {
+					if (servidorCliente != null) {
+						servidorCliente.desconectar(cliente);
+						servidorCliente = null;
+					}
+					JOptionPane.showMessageDialog(null, "Você se desconectou do cliente.");
+					textFieldPortaCliente.setEditable(true);
+				} catch (RemoteException e) {
+					JOptionPane.showMessageDialog(null, "erro ao desconectar do servidor");
+					e.printStackTrace();
+				}
 			}
 		});
 		GridBagConstraints gbc_btnDesconectarCliente = new GridBagConstraints();
@@ -354,6 +369,7 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 		panelArquivos.add(scrollPaneArquivos, gbc_scrollPaneArquivos);
 
 		textAreaArquivos = new JTextArea();
+		textAreaArquivos.setFont(new Font("Monospaced", Font.BOLD, 13));
 		scrollPaneArquivos.setViewportView(textAreaArquivos);
 
 		JPanel panelArquivosBtns = new JPanel();
@@ -411,6 +427,27 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 		gbc_btnNewButton.gridx = 0;
 		gbc_btnNewButton.gridy = 2;
 		panelArquivosBtns.add(btnNewButton, gbc_btnNewButton);
+
+		
+		username = System.getProperty("user.name");
+		cliente.setId(1);
+		cliente.setNome(username);
+		// cliente.setNome("paulo");
+		cliente.setIp(mostrarIP());
+		cliente.setPorta(intPorta);
+	}	
+	
+	public String mostrarIP() {
+		InetAddress IP;
+		String IPString = null;
+		try {
+			IP = InetAddress.getLocalHost();
+			IPString = IP.getHostAddress();
+
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		return IPString;
 	}
 
 	/**
@@ -603,6 +640,8 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 	}
 
 	public void publicarListaArquivos(Cliente c, List<Arquivo> lista) throws RemoteException {
+		textAreaArquivos.setBackground(Color.BLACK);
+		textAreaArquivos.setForeground(Color.WHITE);
 		textAreaArquivos.append(c.getNome() + ":\n");// pega o nome do
 		// cliente que ele vai
 		// dar no argumento do
@@ -615,8 +654,6 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 			// do
 			// arquivo
 
-			// System.out.println("\t" + arq.getTamanho() + "\t" +
-			// arq.getNome());
 		}
 		mapaClientes.put(c, lista);// adiciona no mapa de clientes o cliente e a
 		// lista de arquivos dele que foi criada
@@ -633,57 +670,10 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 	}
 
 	public void desconectar(Cliente c) throws RemoteException {
-
+		c.getNome();
+		listaClientes.add(c);
+		textAreaUsuarios.setBackground(Color.BLACK);
+		textAreaUsuarios.setForeground(Color.RED);
+		textAreaUsuarios.append(c.getNome() + " se desconectou.\n");
 	}
-
-	// @Override
-	// public void entrarNoChat(String nome, IServer cliente) throws
-	// RemoteException {
-	// mostrar(nome + " se conectou.");
-	//
-	// if (mapaClientes.get(nome) != null) {
-	//
-	// mostrar("Retornando erro para tentativa de nome duplicado: " + nome);
-	//
-	// throw new RemoteException("Alguém já está usando o nome: " + nome);
-	// }
-	//
-	// mapaClientes.put(nome, cliente);
-	//
-	// mostrar(nome + " se conectou.");
-	//
-	// atualizarListasDeParticipantes();
-	// }
-
-	// @Override
-	// public void receberListaParticipantes(final List<String> lista) throws
-	// RemoteException {
-	// lista.remove(meunome);
-	//
-	// ListModel<String> model = new AbstractListModel<String>() {
-	// @Override
-	// public int getSize() {
-	// return lista.size();
-	// }
-	//
-	// @Override
-	// public String getElementAt(int index) {
-	// return lista.get(index);
-	// }
-	// };
-	// listParticipantes.setModel(model);
-	// }
-	//
-	// private void atualizarListasDeParticipantes() {
-	// mostrar("Enviando lista atualizada de participantes para todos.");
-	// try {
-	// for (IServer s : mapaClientes.values()) {
-	// s.receberListaParticipantes(new
-	// ArrayList<String>(mapaClientes.keySet()));
-	// }
-	// } catch (RemoteException e) {
-	// e.printStackTrace();
-	// }
-	// }
-
 }
