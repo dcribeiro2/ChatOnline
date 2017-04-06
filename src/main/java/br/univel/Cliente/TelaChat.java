@@ -21,6 +21,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+
 import java.rmi.server.UnicastRemoteObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,6 +56,8 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 	private JButton btnFexarServer;
 	private JButton btnAbrirServer;
 	private JButton btnDesconectarCliente;
+	private IServer servico, servicoCliente;
+	private Registry registry1, registryCliente;
 	
 	/**
 	 * Launch the application.
@@ -454,11 +457,12 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 
 		// Iniciando objetos para conexao.
 		try {
-			registry = LocateRegistry.getRegistry(host, intPorta);
-
-			servidor = (IServer) registry.lookup(servidor.NOME_SERVICO);
+			registryCliente = LocateRegistry.getRegistry(host, intPorta);
+			servicoCliente = (IServer) registry1.lookup(servidor.NOME_SERVICO);
+			
+			JOptionPane.showMessageDialog(this, "Você está conectado no servidor");
 //			cliente = (Cliente) UnicastRemoteObject.exportObject(this, 0);
-			registry = LocateRegistry.getRegistry(host, intPorta);
+//			registry1 = LocateRegistry.getRegistry(host, intPorta);
 			
 			
 
@@ -489,7 +493,7 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 
 		try {
 			UnicastRemoteObject.unexportObject(this, true);
-			UnicastRemoteObject.unexportObject(registry, true);
+			UnicastRemoteObject.unexportObject(registry1, true);
 
 			btnAbrirServer.setEnabled(true);
 
@@ -529,8 +533,8 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 		try {
 
 			servidor = (IServer) UnicastRemoteObject.exportObject(this, 0);
-			registry = LocateRegistry.createRegistry(intPorta);
-			registry.rebind(IServer.NOME_SERVICO, servidor);
+			registry1 = LocateRegistry.createRegistry(intPorta);
+			registry1.rebind(IServer.NOME_SERVICO, servidor);
 
 			mostrar("Serviço iniciado.");
 
