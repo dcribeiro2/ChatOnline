@@ -7,8 +7,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.ButtonUI;
-
-import br.dagostini.comum.Servidor;
 import br.univel.comum.Arquivo;
 import br.univel.comum.Cliente;
 import br.univel.comum.IServer;
@@ -383,35 +381,67 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 		gbc_btnNewButton.gridy = 2;
 		panelArquivosBtns.add(btnNewButton, gbc_btnNewButton);
 	}
+	/**
+	 * Formatador de data para informações no console. Ver:
+	 * https://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html
+	 */
+	private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy H:mm:ss:SSS");
+	
+	/**
+	 * Contatam todos os clientes conectados no servidor.
+	 */
+	private Map<String, Cliente> mapaClientes = new HashMap<>();
+	
+	/**
+	 * Referência a esse proprio objeto depois de exportado.
+	 */
+	private IServer servidor;
+	
+	/**
+	 * Registro onde o objeto exportado será buscado pelo nome o registro que
+	 * escuta na porta TCP/IP.
+	 */
+
+	/**
+	 * ReferÃªncia a esse prÃ³prio objeto depois de exportado, passado para o
+	 * servidor.
+	 */
+	private Cliente cliente;
+
+	/**
+	 * Registo onde o objeto exportado serÃ¡ buscado pelo nome. Ã‰ o registro que
+	 * escuta na porta TCP/IP, aberto no servidor.
+	 */
+	private Registry registry;
+
+	/**
+	 * Meu nome, variÃ¡vel iniciada ao conectar no servidor.
+	 */
+	private String meunome;
+
 
 	protected void conectarCliente() {
 
-		meunome = txfMeuNome.getText().trim();
-		if (meunome.length() == 0) {
-			JOptionPane.showMessageDialog(this, "VocÃª precisa digitar um nome!");
-			return;
-		}
-
 		// EndereÃ§o IP
-		String host = txfIp.getText().trim();
+		String host = textFieldIPCliente.getText().trim();
 		if (!host.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}")) {
-			JOptionPane.showMessageDialog(this, "O endereÃ§o ip parece invÃ¡lido!");
+			JOptionPane.showMessageDialog(this, "O endereço ip parece invalido!");
 			return;
 		}
 
 		// Porta
-		String strPorta = txfPorta.getText().trim();
+		String strPorta = textFieldPortaCliente.getText().trim();
 		if (!strPorta.matches("[0-9]+") || strPorta.length() > 5) {
-			JOptionPane.showMessageDialog(this, "A porta deve ser um valor numÃ©rico de no mÃ¡ximo 5 dÃ­gitos!");
+			JOptionPane.showMessageDialog(this, "A porta deve ser um valor numérico de no maximo 5 digitos!");
 			return;
 		}
 		int intPorta = Integer.parseInt(strPorta);
 
-		// Iniciando objetos para conexÃ£o.
+		// Iniciando objetos para conexao.
 		try {
 			registry = LocateRegistry.getRegistry(host, intPorta);
 
-			servidor = (Servidor) registry.lookup(Servidor.NOME);
+			servidor = (IServer) registry.lookup(servidor.NOME_SERVICO);
 			cliente = (Cliente) UnicastRemoteObject.exportObject(this, 0);
 
 			// Avisando o servidor que estÃ¡ entrando no Chat.
@@ -435,7 +465,6 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 		}
 
 	}		
-	}
 
 	protected void fexarServer() {
 		mostrar("SERVIDOR PARANDO O SERVIÇO.");
@@ -465,27 +494,6 @@ public class TelaChat extends JFrame implements IServer, Runnable{
 		mostrar("DESCONECTANDO TODOS OS CLIENTES.");
 	}
 	
-	/**
-	 * Formatador de data para informações no console. Ver:
-	 * https://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html
-	 */
-	private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy H:mm:ss:SSS");
-
-	/**
-	 * Contatam todos os clientes conectados no servidor.
-	 */
-	private Map<String, Cliente> mapaClientes = new HashMap<>();
-
-	/**
-	 * Referência a esse proprio objeto depois de exportado.
-	 */
-	private IServer servidor;
-
-	/**
-	 * Registro onde o objeto exportado será buscado pelo nome o registro que
-	 * escuta na porta TCP/IP.
-	 */
-	private Registry registry;
 	
 	protected void iniciarServico() {
 		
