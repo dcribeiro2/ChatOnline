@@ -21,8 +21,4 @@ public interface IServer extends Remote {
 
 	public void desconectar(Cliente c) throws RemoteException;
 
-//	public void entrarNoChat(String nome, IServer cliente) throws RemoteException;
-
-//	void receberListaParticipantes(List<String> lista) throws RemoteException;
-	
 }

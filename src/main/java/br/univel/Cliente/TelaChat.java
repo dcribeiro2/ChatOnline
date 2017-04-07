@@ -33,11 +33,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.ListModel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.AbstractListModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -45,9 +51,16 @@ import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class TelaChat extends JFrame implements IServer, Runnable {
 
@@ -73,15 +86,33 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 	private JTextArea textAreaArquivos; 
 	private Map<Cliente, List<Arquivo>> mapaClientes = new HashMap<>();
 	private String username;
+	private JComboBox comboBoxArquivos;
+	private JComboBox comboBoxClientes;
+	private JComboBox comboBoxFiltrar;
 	
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				try {
 					TelaChat frame = new TelaChat();
+				try {
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -89,7 +120,7 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 			}
 		});
 	}
-
+	
 	/**
 	 * Create the frame.
 	 */
@@ -182,7 +213,8 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 		panelFiltrar.add(textFieldFiltrar, gbc_textFieldFiltrar);
 		textFieldFiltrar.setColumns(10);
 
-		JComboBox comboBoxFiltrar = new JComboBox();
+		comboBoxFiltrar = new JComboBox();
+		comboBoxFiltrar.setModel(new DefaultComboBoxModel(TipoFiltro.values()));
 		GridBagConstraints gbc_comboBoxFiltrar = new GridBagConstraints();
 		gbc_comboBoxFiltrar.insets = new Insets(0, 0, 0, 5);
 		gbc_comboBoxFiltrar.fill = GridBagConstraints.BOTH;
@@ -191,6 +223,36 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 		panelFiltrar.add(comboBoxFiltrar, gbc_comboBoxFiltrar);
 
 		JButton btnFiltrar = new JButton("Filtrar");
+		btnFiltrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Map<Cliente, List<Arquivo>> retorno = new HashMap<>();
+				TipoFiltro tf = null;
+				try {
+					textAreaChat.setText(null);
+					comboBoxClientes.removeAllItems();
+					comboBoxArquivos.removeAllItems();
+					retorno = servidorCliente.procurarArquivo(textFieldFiltrar.getText(), tf,
+							String.valueOf(comboBoxFiltrar.getSelectedItem()));
+
+					for (Entry<Cliente, List<Arquivo>> entry : retorno.entrySet()) {
+						Cliente cli = entry.getKey();
+
+						textAreaChat.append(cli.getNome() + ": \n");
+						comboBoxClientes.addItem(cli.getNome());
+
+						for (int i = 0; i < entry.getValue().size(); i++) {
+							Arquivo arq = entry.getValue().get(i);
+
+							textAreaChat.append("  " + arq.getNome() + "  " + arq.getTamanho() + "\n  ");
+							comboBoxArquivos.addItem(arq.getNome());
+						}
+					}
+
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 		GridBagConstraints gbc_btnFiltrar = new GridBagConstraints();
 		gbc_btnFiltrar.fill = GridBagConstraints.BOTH;
 		gbc_btnFiltrar.gridx = 2;
@@ -394,7 +456,22 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 		gbc_lblCliente.gridy = 0;
 		panelArquivosBtns.add(lblCliente, gbc_lblCliente);
 
-		JComboBox comboBoxClientes = new JComboBox();
+		comboBoxClientes = new JComboBox();
+		comboBoxClientes.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
+					for (Entry<Cliente, List<Arquivo>> map : mapaClientes.entrySet()) {
+						Cliente cli = map.getKey();
+						System.out.println(cli.getNome() + " : ");
+						for (Arquivo arq : map.getValue()) {
+							System.out.print(arq.getNome() + " ");
+						}
+						System.out.println();
+					}
+				}
+			}
+		});
 		GridBagConstraints gbc_comboBoxClientes = new GridBagConstraints();
 		gbc_comboBoxClientes.insets = new Insets(0, 0, 5, 0);
 		gbc_comboBoxClientes.fill = GridBagConstraints.HORIZONTAL;
@@ -410,7 +487,22 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 		gbc_lblArquivo.gridy = 1;
 		panelArquivosBtns.add(lblArquivo, gbc_lblArquivo);
 
-		JComboBox comboBoxArquivos = new JComboBox();
+		comboBoxArquivos = new JComboBox();
+		comboBoxArquivos.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					for (Entry<Cliente, List<Arquivo>> map : mapaClientes.entrySet()) {
+						Cliente cli = map.getKey();
+						System.out.println(cli.getNome() + " : ");
+						for (Arquivo arq : map.getValue()) {
+							System.out.print(arq.getNome() + " ");
+						}
+						System.out.println();
+					}
+				}
+			}
+		});
 		GridBagConstraints gbc_comboBoxArquivos = new GridBagConstraints();
 		gbc_comboBoxArquivos.insets = new Insets(0, 0, 5, 0);
 		gbc_comboBoxArquivos.fill = GridBagConstraints.HORIZONTAL;
@@ -419,6 +511,40 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 		panelArquivosBtns.add(comboBoxArquivos, gbc_comboBoxArquivos);
 
 		JButton btnNewButton = new JButton("Baixar arquivos");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				byte[] dados;
+
+				TipoFiltro tf = null;
+				try {
+					Map<Cliente, List<Arquivo>> retornoD = servidorCliente.procurarArquivo(textFieldFiltrar.getText(), tf,
+							String.valueOf(comboBoxArquivos.getSelectedItem()));
+
+					for (Entry<Cliente, List<Arquivo>> entry : retornoD.entrySet()) {
+						Cliente cli = entry.getKey();
+						if (cli.getNome().equals(String.valueOf(comboBoxClientes.getSelectedItem()))) {
+							
+							for (int i = 0; i < entry.getValue().size(); i++) {
+								
+								Arquivo arq = entry.getValue().get(i);
+								if (arq.getNome().equals(String.valueOf(comboBoxArquivos.getSelectedItem()))) {
+									
+									dados = servidor.baixarArquivo(cli, arq);
+
+									escreva(new File(
+											String.valueOf(String.valueOf("Copia "+comboBoxArquivos.getSelectedItem()))), dados);
+								}
+
+							}
+						}
+
+					}
+				} catch (RemoteException e1) {
+					e1.printStackTrace();
+				}
+
+			}
+		});
 		GridBagConstraints gbc_btnNewButton = new GridBagConstraints();
 		gbc_btnNewButton.fill = GridBagConstraints.BOTH;
 		gbc_btnNewButton.gridwidth = 2;
@@ -431,11 +557,20 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 		username = System.getProperty("user.name");
 		cliente.setId(1);
 		cliente.setNome(username);
-		// cliente.setNome("paulo");
 		cliente.setIp(mostrarIP());
 		cliente.setPorta(intPorta);
+		textFieldIPServer.setText(mostrarIP());
 	}	
 	
+	public void escreva(File arq, byte[] dados) {
+		try {
+			Files.write(Paths.get(arq.getPath()), dados, StandardOpenOption.CREATE);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
 	public String mostrarIP() {
 		InetAddress IP;
 		String IPString = null;
@@ -621,7 +756,7 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 	}
 
 	public void run() {
-
+		conectarCliente();
 	}
 
 	public void registrarCliente(Cliente c) throws RemoteException {
@@ -654,11 +789,77 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 
 	public Map<Cliente, List<Arquivo>> procurarArquivo(String query, TipoFiltro tipoFiltro, String filtro)
 			throws RemoteException {
-		return null;
+		List<Arquivo> ListaArquivoFiltrado = new ArrayList<>();
+		Map<Cliente, List<Arquivo>> mapaFiltrado = new HashMap<>();
+		Pattern pat = Pattern.compile(".*" + query + ".*");
+		
+		if (filtro.equals(String.valueOf(tipoFiltro.NOME))) {
+			for (Entry<Cliente, List<Arquivo>> entry : mapaClientes.entrySet()) {
+				Cliente cli = entry.getKey();
+				for (int i = 0; i < entry.getValue().size(); i++) {
+					Arquivo arqui = entry.getValue().get(i);
+					Matcher m = pat.matcher(arqui.getNome().toLowerCase());
+					if (m.matches()) {
+						ListaArquivoFiltrado.clear();
+						ListaArquivoFiltrado.add(arqui);
+						mapaFiltrado.put(entry.getKey(), ListaArquivoFiltrado);
+					}
+				}
+			}
+		}
+
+		if (filtro.equals(String.valueOf(tipoFiltro.EXTENSAO))) {
+
+			for (Entry<Cliente, List<Arquivo>> entry : mapaClientes.entrySet()) {
+				for (int i = 0; i < entry.getValue().size(); i++) {
+					Arquivo arq = entry.getValue().get(i);
+					Matcher m = pat.matcher(arq.getExtensao().toLowerCase());
+					if (m.matches()) {
+						ListaArquivoFiltrado.clear();
+						ListaArquivoFiltrado.add(entry.getValue().get(i));
+						mapaFiltrado.put(entry.getKey(), ListaArquivoFiltrado);
+					}
+				}
+			}
+		}
+		if (filtro.equals(String.valueOf(tipoFiltro.TAMANHO_MIN))) {
+			for (Entry<Cliente, List<Arquivo>> entry : mapaClientes.entrySet()) {
+				for (int i = 0; i < entry.getValue().size(); i++) {
+					Arquivo arq = entry.getValue().get(i);
+
+					if (arq.getTamanho() >= Long.parseLong(query)) {
+						ListaArquivoFiltrado.clear();
+						ListaArquivoFiltrado.add(entry.getValue().get(i));
+						mapaFiltrado.put(entry.getKey(), ListaArquivoFiltrado);
+					}
+				}
+			}
+		}
+		if (filtro.equals(String.valueOf(tipoFiltro.TAMANHO_MAX))) {
+			for (Entry<Cliente, List<Arquivo>> entry : mapaClientes.entrySet()) {
+				for (int i = 0; i < entry.getValue().size(); i++) {
+					Arquivo arq = entry.getValue().get(i);
+					if (arq.getTamanho() <= Long.parseLong(query)) {
+						ListaArquivoFiltrado.clear();
+						ListaArquivoFiltrado.add(entry.getValue().get(i));
+						mapaFiltrado.put(entry.getKey(), ListaArquivoFiltrado);
+					}
+				}
+			}
+		}
+		return mapaFiltrado;
 	}
 
 	public byte[] baixarArquivo(Cliente cli, Arquivo arq) throws RemoteException {
-		return null;
+		byte[] dados = null;
+		Path path = Paths.get(arq.getPath());
+		try {
+			dados = Files.readAllBytes(path);
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return dados;
 	}
 
 	public void desconectar(Cliente c) throws RemoteException {

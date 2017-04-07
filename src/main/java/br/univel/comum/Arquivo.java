@@ -3,6 +3,9 @@ package br.univel.comum;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
 public class Arquivo implements Serializable {
 
 	private static final long serialVersionUID = -6433462679928213637L;
