@@ -85,7 +85,7 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 	private int intPorta;
 	private JTextArea textAreaArquivos; 
 	private Map<Cliente, List<Arquivo>> mapaClientes = new HashMap<>();
-	private String username;
+	private String userName;
 	private JComboBox comboBoxArquivos;
 	private JComboBox comboBoxClientes;
 	private JComboBox comboBoxFiltrar;
@@ -198,7 +198,7 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 		gbc_panelFiltrar.gridy = 1;
 		contentPane.add(panelFiltrar, gbc_panelFiltrar);
 		GridBagLayout gbl_panelFiltrar = new GridBagLayout();
-		gbl_panelFiltrar.columnWidths = new int[] { 239, 182, 84, 0 };
+		gbl_panelFiltrar.columnWidths = new int[] { 266, 156, 84, 0 };
 		gbl_panelFiltrar.rowHeights = new int[] { 20, 0 };
 		gbl_panelFiltrar.columnWeights = new double[] { 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		gbl_panelFiltrar.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
@@ -442,7 +442,7 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 		gbc_panelArquivosBtns.gridy = 3;
 		contentPane.add(panelArquivosBtns, gbc_panelArquivosBtns);
 		GridBagLayout gbl_panelArquivosBtns = new GridBagLayout();
-		gbl_panelArquivosBtns.columnWidths = new int[] { 0, 0, 0 };
+		gbl_panelArquivosBtns.columnWidths = new int[] { 0, 123, 0 };
 		gbl_panelArquivosBtns.rowHeights = new int[] { 0, 0, 0, 0 };
 		gbl_panelArquivosBtns.columnWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
 		gbl_panelArquivosBtns.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
@@ -544,11 +544,10 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 		gbc_btnNewButton.gridx = 0;
 		gbc_btnNewButton.gridy = 2;
 		panelArquivosBtns.add(btnNewButton, gbc_btnNewButton);
-
 		
-		username = System.getProperty("user.name");
+		userName = System.getProperty("user.name");
 		cliente.setId(1);
-		cliente.setNome(username);
+		cliente.setNome(userName);
 		cliente.setIp(mostrarIP());
 		cliente.setPorta(intPorta);
 		textFieldIPServer.setText(mostrarIP());
@@ -636,7 +635,7 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 	private void carregarArquivo() {
 //		File dirStart = new File(".\\");// criar um file que sera o
 		// diretorio
-		 File dirStart = new File("C://Users//"+username+"//Desktop//Arquivo");
+		 File dirStart = new File("C://Users//"+userName+"//Desktop//Arquivo");
 		for (File file : dirStart.listFiles()) {// para cada file da lista a
 			// cima ele vai fazer:
 			if (file.isFile()) {// se o file realmente for um file ele vai
