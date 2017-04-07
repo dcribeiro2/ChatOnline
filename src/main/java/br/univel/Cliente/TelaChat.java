@@ -514,7 +514,6 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				byte[] dados;
-
 				TipoFiltro tf = null;
 				try {
 					Map<Cliente, List<Arquivo>> retornoD = servidorCliente.procurarArquivo(textFieldFiltrar.getText(), tf,
@@ -523,26 +522,19 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 					for (Entry<Cliente, List<Arquivo>> entry : retornoD.entrySet()) {
 						Cliente cli = entry.getKey();
 						if (cli.getNome().equals(String.valueOf(comboBoxClientes.getSelectedItem()))) {
-							
 							for (int i = 0; i < entry.getValue().size(); i++) {
-								
 								Arquivo arq = entry.getValue().get(i);
 								if (arq.getNome().equals(String.valueOf(comboBoxArquivos.getSelectedItem()))) {
-									
 									dados = servidor.baixarArquivo(cli, arq);
-
 									escreva(new File(
-											String.valueOf(String.valueOf("Copia "+comboBoxArquivos.getSelectedItem()))), dados);
+											String.valueOf(String.valueOf(comboBoxArquivos.getSelectedItem()))), dados);
 								}
-
 							}
 						}
-
 					}
 				} catch (RemoteException e1) {
 					e1.printStackTrace();
 				}
-
 			}
 		});
 		GridBagConstraints gbc_btnNewButton = new GridBagConstraints();
@@ -633,13 +625,6 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 			servidorCliente.publicarListaArquivos(cliente, listaArquivos);
 			btnDesconectarCliente.setEnabled(true);
 
-			// btnConectarCliente.setEnabled(false);
-			// textFieldIPCliente.setEnabled(false);
-			// textFieldPortaCliente.setEnabled(false);
-
-			// buttonEnviar.setEnabled(true);
-			// txfMensagem.setEnabled(true);
-
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		} catch (NotBoundException e) {
@@ -687,7 +672,6 @@ public class TelaChat extends JFrame implements IServer, Runnable {
 			UnicastRemoteObject.unexportObject(registry, true);
 
 			btnAbrirServer.setEnabled(true);
-
 			btnFexarServer.setEnabled(false);
 
 			textFieldIPortaServer.setEnabled(true);
