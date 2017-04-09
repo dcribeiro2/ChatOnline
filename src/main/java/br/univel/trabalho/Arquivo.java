@@ -1,4 +1,4 @@
-package br.univel.comum;
+package br.univel.trabalho;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -17,9 +17,6 @@ public class Arquivo implements Serializable {
 	private String extensao;
 
 	private long tamanho;
-
-	private String md5;
-
 	private Date dataHoraModificacao;
 
 	public long getId() {
@@ -62,14 +59,6 @@ public class Arquivo implements Serializable {
 		this.tamanho = tamanho;
 	}
 
-	public String getMd5() {
-		return md5;
-	}
-
-	public void setMd5(String md5) {
-		this.md5 = md5;
-	}
-
 	public Date getDataHoraModificacao() {
 		return dataHoraModificacao;
 	}
@@ -85,7 +74,6 @@ public class Arquivo implements Serializable {
 		result = prime * result + ((dataHoraModificacao == null) ? 0 : dataHoraModificacao.hashCode());
 		result = prime * result + ((extensao == null) ? 0 : extensao.hashCode());
 		result = prime * result + (int) (id ^ (id >>> 32));
-		result = prime * result + ((md5 == null) ? 0 : md5.hashCode());
 		result = prime * result + ((nome == null) ? 0 : nome.hashCode());
 		result = prime * result + ((path == null) ? 0 : path.hashCode());
 		result = prime * result + (int) (tamanho ^ (tamanho >>> 32));
@@ -112,11 +100,6 @@ public class Arquivo implements Serializable {
 		} else if (!extensao.equals(other.extensao))
 			return false;
 		if (id != other.id)
-			return false;
-		if (md5 == null) {
-			if (other.md5 != null)
-				return false;
-		} else if (!md5.equals(other.md5))
 			return false;
 		if (nome == null) {
 			if (other.nome != null)

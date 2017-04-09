@@ -1,24 +1,24 @@
-package br.univel.comum;
+package br.univel.trabalho;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 
-public interface IServer extends Remote {
-
+public interface Server extends Remote {
+//Codigo copiado do ex do prof
 	public static final String NOME_SERVICO = "JShare";
 
 	public void registrarCliente(Cliente c) throws RemoteException;
 
-	public void publicarListaArquivos(Cliente c, List<Arquivo> lista)
+	public void publicarListaArquivos(Cliente cliente, List<Arquivo> listaArq)
 			throws RemoteException;
 
 	public Map<Cliente, List<Arquivo>> procurarArquivo(String query, TipoFiltro tipoFiltro, String filtro)
 			throws RemoteException;
 
-	public byte[] baixarArquivo(Cliente cli, Arquivo arq) throws RemoteException;
+	public byte[] baixarArquivo(Cliente baCliente, Arquivo baArquivo) throws RemoteException;
 
-	public void desconectar(Cliente c) throws RemoteException;
+	public void desconectar(Cliente dCliente) throws RemoteException;
 
 }

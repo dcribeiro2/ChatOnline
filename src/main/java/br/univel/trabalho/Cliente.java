@@ -1,10 +1,10 @@
-package br.univel.comum;
+package br.univel.trabalho;
 
 import java.io.Serializable;
 
 public class Cliente implements Serializable{
 
-	private long id;
+	private int id;
 	private String nome;
 	private String ip;
 	private int porta;
@@ -13,7 +13,7 @@ public class Cliente implements Serializable{
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
