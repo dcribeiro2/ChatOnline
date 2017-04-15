@@ -612,7 +612,7 @@ public class TelaChat extends JFrame implements Server, Runnable {
 
 	protected void conectarCliente() {
 
-		List<Arquivo> listaArquivos = new ArrayList<>();
+		List<Arquivo> listaDeArquivos = new ArrayList<>();
 		
 		// Endereço IP
 		String host = textFieldIPCliente.getText().trim();
@@ -633,24 +633,11 @@ public class TelaChat extends JFrame implements Server, Runnable {
 		try {
 			regCliente = LocateRegistry.getRegistry(host, intPorta);
 			serCliente = (Server) regCliente.lookup(Server.NOME_SERVICO);
-
-			 File dirStart = new File("C://Users//"+nomePC+"//Desktop//Arquivo");
-				/*
-				 * Cria um File chamado dirstart que sera a pasta onde os arquivos
-				 * irÃ£o ficar
-				 */
-				/*
-				 * para cada arquivo da pasta ele vai procurar
-				 */
-				for (File file : dirStart.listFiles()) {
-					/*
-					 * se o arquivo for um arquivo ele vai entrar no if
-					 */
+			//Busca diretorio do arquivo e oque tem nele
+			 File procuraDir = new File("C://Users//"+nomePC+"//Desktop//Arquivo");
+				//Ctrl c + Ctrl v do prof
+				for (File file : procuraDir.listFiles()) {
 					if (file.isFile()) {
-						/*
-						 * pra cada arquivo ele vai pegar o nome, tamanho, extensao,
-						 * path e vai adicionar na listaArquivos
-						 */
 						Arquivo arq = new Arquivo();
 
 						arq.setNome(file.getName());
@@ -659,12 +646,12 @@ public class TelaChat extends JFrame implements Server, Runnable {
 						arq.setExtensao(file.getName().substring(ex));
 						arq.setPath(file.getPath());
 
-						listaArquivos.add(arq);
+						listaDeArquivos.add(arq);
 					}
 			}
 
 			serCliente.registrarCliente(cliente);
-			serCliente.publicarListaArquivos(cliente, listaArquivos);
+			serCliente.publicarListaArquivos(cliente, listaDeArquivos);
 			btnDesconectarCliente.setEnabled(true);
 
 		} catch (RemoteException e) {
