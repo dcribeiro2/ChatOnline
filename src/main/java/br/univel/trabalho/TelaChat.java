@@ -1,5 +1,6 @@
 package br.univel.trabalho;
 
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -541,7 +542,6 @@ public class TelaChat extends JFrame implements Server, Runnable {
 									dados = serCliente.baixarArquivo(cliDown, arqDown);
 									escreva(new File(String.valueOf(String.valueOf("Copia de "+comboBoxArquivos.getSelectedItem()))), dados);
 								} catch (RemoteException e1) {
-									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
 							}
@@ -663,7 +663,7 @@ public class TelaChat extends JFrame implements Server, Runnable {
 	}
 
 	private void carregarArquivo() {
-		 File dirStart = new File("C://Users//"+nomePC+"//Desktop//Arquivo");
+		 File dirStart = new File("C:/Users/combate/Desktop/Teste");
 			/*
 			 * Cria um File chamado dirstart que sera a pasta onde os arquivos
 			 * irão ficar
@@ -681,6 +681,7 @@ public class TelaChat extends JFrame implements Server, Runnable {
 					 * path e vai adicionar na listaArquivos
 					 */
 					Arquivo arq = new Arquivo();
+					
 
 					arq.setNome(file.getName());
 					arq.setTamanho(file.length());
