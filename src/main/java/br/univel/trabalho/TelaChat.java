@@ -634,7 +634,7 @@ public class TelaChat extends JFrame implements Server, Runnable {
 			regCliente = LocateRegistry.getRegistry(host, intPorta);
 			serCliente = (Server) regCliente.lookup(Server.NOME_SERVICO);
 			//Busca diretorio do arquivo e oque tem nele
-			 File procuraDir = new File("C://Users//"+nomePC+"//Desktop//Arquivo");
+			 File procuraDir = new File("C://Users//combate//Desktop//Teste");
 				//Ctrl c + Ctrl v do prof
 				for (File file : procuraDir.listFiles()) {
 					if (file.isFile()) {
@@ -663,7 +663,7 @@ public class TelaChat extends JFrame implements Server, Runnable {
 	}
 
 	private void carregarArquivo() {
-		 File dirStart = new File("C:/Users/combate/Desktop/Teste");
+		 File dirStart = new File("C://Users//"+nomePC+"//combate//Desktop//Teste");
 			/*
 			 * Cria um File chamado dirstart que sera a pasta onde os arquivos
 			 * irão ficar
