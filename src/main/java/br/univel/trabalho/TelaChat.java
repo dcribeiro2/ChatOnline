@@ -550,6 +550,7 @@ public class TelaChat extends JFrame implements Server, Runnable {
 				}
 
 			}
+			
 		});
 		GridBagConstraints gbc_btnNewButton = new GridBagConstraints();
 		gbc_btnNewButton.fill = GridBagConstraints.BOTH;
