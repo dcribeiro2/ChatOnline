@@ -59,6 +59,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class TelaChat extends JFrame implements Server, Runnable {
+	
 
 	private JTextField textFieldBuscar;
 	private JTextField textFieldIPortaServer;
