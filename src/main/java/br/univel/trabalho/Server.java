@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface Server extends Remote {
-//Codigo copiado do ex do prof
+
 	public static final String NOME_SERVICO = "JShare";
 
 	public void registrarCliente(Cliente c) throws RemoteException;
